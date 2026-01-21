@@ -8,50 +8,53 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  phone        String    @unique
-  name         String?
-  email        String?   @unique
-  role         Role      @default(STUDENT)
-  passwordHash String
-  verified     Boolean   @default(false) // for phone OTP verification
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                       String    @id @default(uuid())
+  phone                    String    @unique
+  name                     String?
+  email                    String?   @unique
+  role                     Role      @default(STUDENT)
+  passwordHash             String
+  verified                 Boolean   @default(false) // for phone OTP verification
+  verificationToken        String?
+  verificationTokenExpires DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
-  lodges       Lodge[]
-  messagesSent Message[] @relation("Sender")
-  messagesReceived Message[] @relation("Receiver")
-  favorites    Favorite[]
+  lodges           Lodge[]
+  messagesSent     Message[]  @relation("Sender")
+  messagesReceived Message[]  @relation("Receiver")
+  favorites        Favorite[]
 }
 
 enum Role {
   STUDENT
-  LANDLORD
+  HOME_OWNER
   AGENT
+  ADMIN
 }
 
 model Lodge {
-  id               String    @id @default(uuid())
-  title            String    // e.g., "Self-Con near Oko Gate"
-  description      String?
-  price            Float 
-  address          String
-  latitude         Float?    // for maps (Google Maps API in React Native)
-  longitude        Float?
-  proximityToCampus Int?     // meters from main gate, calculate via API
-  rooms            Int       @default(1)
-  bathrooms        Int       @default(1)
-  amenities        Amenity[]
-  photos           String[]
-  agentFee         Boolean   @default(false) // true if agent involved
-  status           Status    @default(AVAILABLE)
-  ownerId          String
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                String    @id @default(uuid())
+  title             String // e.g., "Self-Con near Oko Gate"
+  description       String?
+  price             Float
+  address           String
+  latitude          Float? // for maps (Google Maps API in React Native)
+  longitude         Float?
+  proximityToCampus Int? // meters from main gate, calculate via API
+  rooms             Int       @default(1)
+  bathrooms         Int       @default(1)
+  amenities         Amenity[]
+  photos            String[]
+  agentFee          Boolean   @default(false) // true if agent involved
+  status            Status    @default(AVAILABLE)
+  ownerId           String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  owner            User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  messages         Message[] // chats about this lodge
-  favorites        Favorite[]
+  owner     User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  messages  Message[] // chats about this lodge
+  favorites Favorite[]
 }
 
 enum Status {
@@ -61,10 +64,10 @@ enum Status {
 }
 
 model Amenity {
-  id        String   @id @default(uuid())
-  name      String   @unique // e.g., "Borehole", "Generator", "Fence"
+  id   String @id @default(uuid())
+  name String @unique // e.g., "Borehole", "Generator", "Fence"
 
-  lodges    Lodge[]
+  lodges Lodge[]
 }
 
 model Message {
@@ -74,21 +77,21 @@ model Message {
   isRead     Boolean  @default(false)
   senderId   String
   receiverId String
-  lodgeId    String?  // optional, to link chat to specific lodge
+  lodgeId    String? // optional, to link chat to specific lodge
 
-  sender     User     @relation("Sender", fields: [senderId], references: [id])
-  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
-  lodge      Lodge?   @relation(fields: [lodgeId], references: [id])
+  sender   User   @relation("Sender", fields: [senderId], references: [id])
+  receiver User   @relation("Receiver", fields: [receiverId], references: [id])
+  lodge    Lodge? @relation(fields: [lodgeId], references: [id])
 }
 
 model Favorite {
-  id       String   @id @default(uuid())
-  userId   String
-  lodgeId  String
+  id        String   @id @default(uuid())
+  userId    String
+  lodgeId   String
   createdAt DateTime @default(now())
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lodge    Lodge    @relation(fields: [lodgeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lodge Lodge @relation(fields: [lodgeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lodgeId]) // no duplicate favorites
 }
