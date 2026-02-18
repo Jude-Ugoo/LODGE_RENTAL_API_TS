@@ -11,6 +11,7 @@ import { EmailProviderModule } from './common/modules/emailProvider/emailProvide
 import emailConfig from './common/configs/email.config';
 import uploadConfig from './common/configs/upload.config';
 import { UploadProviderModule } from './common/modules/uploadProvider/uploadProvider.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UploadProviderModule } from './common/modules/uploadProvider/uploadProv
     UploadProviderModule.forRootAsync(),
     UserModule,
     AuthModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
